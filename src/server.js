@@ -16,11 +16,23 @@ const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ server });
 
+const sockets = [];
+
 wss.on("connection", (socket) => {
+  sockets.push(socket);
+  socket["nickname"] = "anno";
   console.log("Connected to Broswer");
   socket.on("close", () => console.log("Disconnected from the Broswer"));
-  socket.on("message", (message) => console.log(message.toString("utf8")));
-  socket.send("hello!");
+  socket.on("message", (msg) => {
+    const message = JSON.parse(msg);
+    if (message.type === "new_message") {
+      sockets.forEach((aSocket) => {
+        aSocket.send(`${socket.nickname} : ${message.payload}`);
+      });
+    } else if (message.type === "nickname") {
+      socket["nickname"] = message.payload;
+    }
+  });
 });
 
 server.listen(3000, handleListen);
