@@ -20,11 +20,12 @@ const sockets = [];
 
 wss.on("connection", (socket) => {
   sockets.push(socket);
-  socket["nickname"] = "anno";
+  socket["nickname"] = "Anonymous";
   console.log("Connected to Broswer");
-  socket.on("close", () => console.log("Disconnected from the Broswer"));
+
   socket.on("message", (msg) => {
     const message = JSON.parse(msg);
+    console.log(message);
     if (message.type === "new_message") {
       sockets.forEach((aSocket) => {
         aSocket.send(`${socket.nickname} : ${message.payload}`);
@@ -33,6 +34,8 @@ wss.on("connection", (socket) => {
       socket["nickname"] = message.payload;
     }
   });
+
+  socket.on("close", () => console.log("Disconnected from the Broswer"));
 });
 
 server.listen(3000, handleListen);

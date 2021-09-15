@@ -1,7 +1,10 @@
 const socket = new WebSocket(`ws://${window.location.host}`);
 
-const messageList = document.querySelector("ul");
+const chatLayout = document.querySelector("#chatLayout");
+chatLayout.style.cssText = "display: flex;justify-content: center;align-items: center;flex-direction: column;";
+
 const messageForm = document.querySelector("#message");
+
 const nickForm = document.querySelector("#nick");
 
 function makeMessage(type, payload) {
@@ -20,10 +23,11 @@ socket.addEventListener("message", async (message) => {
   } else {
     messagetext = await message.data.text();
   }
-
-  const li = document.createElement("li");
-  li.innerText = messagetext;
-  messageList.appendChild(li);
+  if (messagetext.includes(nickForm.querySelector("input").value)) return;
+  const div = document.createElement("div");
+  div.innerText = messagetext;
+  div.style.cssText = "display: flex;justify-content: flex-start;width : 100%";
+  chatLayout.appendChild(div);
 });
 
 socket.addEventListener("close", () => {
@@ -34,9 +38,11 @@ function handleSubmit(event) {
   event.preventDefault();
   const input = messageForm.querySelector("input");
   socket.send(makeMessage("new_message", input.value));
-  const li = document.createElement("li");
-  li.innerText = `You : ${input.value}`;
-  messageList.appendChild(li);
+  const div = document.createElement("div");
+  div.innerText = `You : ${input.value}`;
+  div.style.cssText = "display: flex;justify-content: flex-end;width : 100%";
+
+  chatLayout.appendChild(div);
   input.value = "";
 }
 function handleNickSubmit(event) {
